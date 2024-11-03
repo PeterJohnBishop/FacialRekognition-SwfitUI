@@ -4,7 +4,8 @@ import http from 'http';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import authRoutes from './routes/AuthenticationRoutes.js'
+import authRoutes from './routes/AuthenticationRoutes.js';
+import userRoutes from './routes/UserRoutes.js';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/authentication', authRoutes);
+app.use('/users', userRoutes);
 
 // Create HTTP server and initialize Socket.IO on the same port
 const server = http.createServer(app);
