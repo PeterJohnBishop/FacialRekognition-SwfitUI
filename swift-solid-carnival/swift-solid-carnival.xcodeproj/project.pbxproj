@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		B1E28D512CD7EC910028C75E /* AWSRekognition in Frameworks */ = {isa = PBXBuildFile; productRef = B1E28D502CD7EC910028C75E /* AWSRekognition */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
 		B1D7DF332CD3FB05003AD92F /* swift-solid-carnival.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "swift-solid-carnival.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -27,7 +23,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1E28D512CD7EC910028C75E /* AWSRekognition in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +65,6 @@
 			);
 			name = "swift-solid-carnival";
 			packageProductDependencies = (
-				B1E28D502CD7EC910028C75E /* AWSRekognition */,
 			);
 			productName = "swift-solid-carnival";
 			productReference = B1D7DF332CD3FB05003AD92F /* swift-solid-carnival.app */;
@@ -101,7 +95,6 @@
 			mainGroup = B1D7DF2A2CD3FB05003AD92F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				B1E28D4F2CD7EC910028C75E /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B1D7DF342CD3FB05003AD92F /* Products */;
@@ -337,25 +330,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		B1E28D4F2CD7EC910028C75E /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/aws-amplify/aws-sdk-ios-spm";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.37.2;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		B1E28D502CD7EC910028C75E /* AWSRekognition */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B1E28D4F2CD7EC910028C75E /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
-			productName = AWSRekognition;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B1D7DF2B2CD3FB05003AD92F /* Project object */;
 }
