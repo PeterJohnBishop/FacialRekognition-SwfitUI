@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/AuthenticationRoutes.js';
 import userRoutes from './routes/UserRoutes.js';
+import rekognitionRoutes from './routes/RekognitionRoutes.js';
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.get('/', (req, res) => {
 
 app.use('/authentication', authRoutes);
 app.use('/users', userRoutes);
+app.use('/rekognition', rekognitionRoutes);
 
 // Create HTTP server and initialize Socket.IO on the same port
 const server = http.createServer(app);
@@ -56,7 +58,7 @@ const configureSocketIO = (io) => {
   io.on('connection', (socket) => {
     console.log('A user connected on port:', io.httpServer.address().port);
 
-    socket.on('fromSwiftUI', (data) => {
+    socket.on('ios', (data) => {
       console.log(`Message received on port ${io.httpServer.address().port}:`, data);
     });
 

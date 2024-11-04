@@ -9,7 +9,13 @@ import SwiftUI
 
 struct MainView: View {
     var body: some View {
-        CameraView()
+        LoginUserView().onAppear{
+            SocketService.shared.socket.connect()
+        }.onChange(of: SocketService.shared.connected, {
+            if SocketService.shared.connected {
+                SocketService.shared.socket.emit("ios", ["message":"\(SocketService.shared.socket.sid ?? "") connected on iOS!"])
+            }
+        })
     }
 }
 

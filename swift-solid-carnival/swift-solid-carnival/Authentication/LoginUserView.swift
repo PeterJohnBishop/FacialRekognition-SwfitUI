@@ -14,7 +14,8 @@ struct LoginUserView: View {
     var body: some View {
         NavigationStack{
                     VStack{
-                        Text("Login")
+                        Text("Login").font(.system(size: 34))
+                            .fontWeight(.ultraLight)
                         
                         TextField("Email", text: $userViewModel.user.email)
                             .tint(.black)
@@ -27,6 +28,7 @@ struct LoginUserView: View {
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                             .padding()
+                        
                         
                         Button("Submit", action: {
                             Task{
@@ -43,6 +45,13 @@ struct LoginUserView: View {
                                 .fill(Color.white)
                                 .shadow(color: .gray.opacity(0.4), radius: 4, x: 2, y: 2)
                         )
+                        Divider().padding()
+                        Button("I need to create an account.", action: {
+                            Task{
+                                success = await userViewModel.authenticateUser()
+                            }
+                        }).foregroundStyle(.black)
+                            .padding()
                     }.onAppear{
                         
                     }

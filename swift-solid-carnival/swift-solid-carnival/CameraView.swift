@@ -12,16 +12,18 @@ import PhotosUI
 struct CameraView: View {
     @State private var showCamera = false
     @State private var selectedImage: UIImage?
-    @State var image: UIImage?
+    @State var rekognitionViewModel = RekognitionViewModel()
     
     var body: some View {
         VStack {
-            if let selectedImage{
+            if let selectedImage {
                 Image(uiImage: selectedImage)
                     .resizable()
                     .scaledToFit()
-            }
-            else {
+                    .onAppear {
+                        rekognitionViewModel.analyzeImageWithAWSRekognition(image: selectedImage)
+                    }
+            } else {
                 Text("No Image Selected")
                     .font(.headline)
             }
@@ -29,10 +31,51 @@ struct CameraView: View {
             Button("Open camera") {
                 self.showCamera.toggle()
             }
-            .fullScreenCover(isPresented: self.$showCamera) {
-                accessCameraView(selectedImage: self.$selectedImage)
+            .fullScreenCover(isPresented: $showCamera) {
+                accessCameraView(selectedImage: $selectedImage)
                     .background(.black)
             }
+            ScrollView(content: {
+                if let faces = rekognitionViewModel.faceDetails {
+                    ForEach(faces) { face in
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Age Range: \(face.ageRange.low) - \(face.ageRange.high)")
+                            Text("Beard: \(face.beard.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.beard.confidence))")
+                            Text("Bounding Box: Height: \(String(format: "%.2f", face.boundingBox.height)), Width: \(String(format: "%.2f", face.boundingBox.width)), Top: \(String(format: "%.2f", face.boundingBox.top)), Left: \(String(format: "%.2f", face.boundingBox.left))")
+                            Text("Confidence: \(String(format: "%.2f", face.confidence))")
+
+                            Text("Emotions:")
+                            ForEach(face.emotions) { emotion in
+                                Text("\(emotion.type): \(String(format: "%.2f", emotion.confidence))%")
+                            }
+
+                            Text("Eye Direction - Pitch: \(String(format: "%.2f", face.eyeDirection.pitch)), Yaw: \(String(format: "%.2f", face.eyeDirection.yaw))")
+                            Text("Eyeglasses: \(face.eyeglasses.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.eyeglasses.confidence))")
+                            Text("Eyes Open: \(face.eyesOpen.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.eyesOpen.confidence))")
+                            Text("Face Occluded: \(face.faceOccluded.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.faceOccluded.confidence))")
+                            Text("Gender: \(face.gender.value) with confidence \(String(format: "%.2f", face.gender.confidence))")
+
+                            Text("Landmarks:")
+                            ForEach(face.landmarks) { landmark in
+                                Text("\(landmark.type) - X: \(String(format: "%.2f", landmark.x)), Y: \(String(format: "%.2f", landmark.y))")
+                            }
+
+                            Text("Mouth Open: \(face.mouthOpen.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.mouthOpen.confidence))")
+                            Text("Mustache: \(face.mustache.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.mustache.confidence))")
+
+                            Text("Pose - Pitch: \(String(format: "%.2f", face.pose.pitch)), Roll: \(String(format: "%.2f", face.pose.roll)), Yaw: \(String(format: "%.2f", face.pose.yaw))")
+
+                            Text("Quality - Brightness: \(String(format: "%.2f", face.quality.brightness)), Sharpness: \(String(format: "%.2f", face.quality.sharpness))")
+                            Text("Smile: \(face.smile.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.smile.confidence))")
+                            Text("Sunglasses: \(face.sunglasses.value ? "Yes" : "No") with confidence \(String(format: "%.2f", face.sunglasses.confidence))")
+                        }
+                        .padding()
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(10)
+                    }
+                }
+            })
+
         }
     }
 }
