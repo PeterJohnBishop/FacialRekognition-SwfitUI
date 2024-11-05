@@ -7,6 +7,7 @@ import cors from 'cors';
 import authRoutes from './routes/AuthenticationRoutes.js';
 import userRoutes from './routes/UserRoutes.js';
 import rekognitionRoutes from './routes/RekognitionRoutes.js';
+import s3Routes from './routes/S3.js';
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.get('/', (req, res) => {
 app.use('/authentication', authRoutes);
 app.use('/users', userRoutes);
 app.use('/rekognition', rekognitionRoutes);
+app.use('/s3', s3Routes);
 
 // Create HTTP server and initialize Socket.IO on the same port
 const server = http.createServer(app);
