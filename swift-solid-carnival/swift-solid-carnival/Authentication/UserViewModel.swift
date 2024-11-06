@@ -12,7 +12,7 @@ import CryptoKit
 @Observable class UserViewModel {
     var user: UserModel = UserModel()
     var users: [UserModel] = []
-    var baseURL: String = "http://127.0.0.1:4000/authentication"
+    var baseURL: String = "http://192.168.0.158:4000/authentication"
     var error: String = ""
     
     func createNewUser() async -> Bool {
