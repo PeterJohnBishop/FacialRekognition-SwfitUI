@@ -25,7 +25,7 @@ struct swift_solid_carnivalApp: App {
 
     var body: some Scene {
         WindowGroup {
-            CameraView()
+            LoginUserView()
         }
         .modelContainer(sharedModelContainer)
     }

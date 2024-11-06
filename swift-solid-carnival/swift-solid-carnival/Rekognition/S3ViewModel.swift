@@ -10,6 +10,7 @@ import Observation
 import UIKit
 
 @Observable class S3ViewModel {
+    var imageUrl: String = ""
     
     func uploadImageToS3(image: UIImage) {
         guard let url = URL(string: "http://192.168.0.158:4000/s3/upload") else { return }
@@ -43,10 +44,16 @@ import UIKit
             guard let data = data else { return }
 
             do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
-                print("Parsed JSON response:", json)
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let url = json["imageUrl"] as? String {
+                    print("Parsed JSON response:", json)
+                    self.imageUrl = url
+                    print(self.imageUrl)
+                } else {
+                    print("Failed to parse JSON or 'imageUrl' not found.")
+                }
             } catch {
-                print("Failed to parse JSON:", error)
+                print("Error parsing JSON:", error)
             }
         }.resume()
     }

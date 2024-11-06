@@ -7,7 +7,7 @@ import cors from 'cors';
 import authRoutes from './routes/AuthenticationRoutes.js';
 import userRoutes from './routes/UserRoutes.js';
 import rekognitionRoutes from './routes/RekognitionRoutes.js';
-import s3Routes from './routes/S3.js';
+import s3Routes from './routes/S3Routes.js';
 
 dotenv.config();
 

@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { RekognitionClient, DetectFacesCommand } = require('@aws-sdk/client-rekognition');
+const { RekognitionClient, DetectFacesCommand, CompareFacesCommand } = require('@aws-sdk/client-rekognition');
 require('dotenv').config();
 const multer = require('multer');
 const fs = require('fs');
@@ -13,14 +13,15 @@ const client = new RekognitionClient({
   },
 });
 
-router.route('/rekognize').post(upload.single('image'), async (req, res) => {
+//facial analysis on image stored locally
+router.route('/face_local').post(upload.single('image'), async (req, res) => {
 
     const imageBytes = fs.readFileSync(req.file.path);
 
   // Set up parameters for Rekognition
   const params = {
     Image: { Bytes: imageBytes },
-    Attributes: ['ALL'], // Add any specific attributes you need
+    Attributes: ['ALL'],
   };
 
   // Call Rekognition
@@ -36,6 +37,84 @@ router.route('/rekognize').post(upload.single('image'), async (req, res) => {
   }
   
 });
+
+//comparision analysis on images stored locally
+router.route('/compare_faces_local').post(upload.array('images', 2), async (req, res) => {
+    if (req.files.length !== 2) {
+        return res.status(400).send("Please upload exactly two images for comparison.");
+    }
+
+    // Read both images as byte data
+    const sourceImageBytes = fs.readFileSync(req.files[0].path);
+    const targetImageBytes = fs.readFileSync(req.files[1].path);
+
+    // Set up parameters for Rekognition
+    const params = {
+        SourceImage: { Bytes: sourceImageBytes },
+        TargetImage: { Bytes: targetImageBytes },
+        SimilarityThreshold: 70
+    };
+
+    try {
+        const command = new CompareFacesCommand(params);
+        const response = await client.send(command);
+
+        // Clean up uploaded images
+        req.files.forEach(file => fs.unlinkSync(file.path));
+
+        // Process and format response data
+        const faceMatches = response.FaceMatches.map(match => ({
+            position: match.Face.BoundingBox,
+            similarity: match.Similarity
+        }));
+
+        console.log("Face comparison results:", faceMatches);
+        res.json({ faceMatches });
+    } catch (error) {
+        console.error("Error comparing faces:", error);
+        res.status(500).send("Error comparing images");
+    }
+});
+router.route('/compare_faces_local').post(upload.array('images', 2), async (req, res) => {
+  if (req.files.length !== 2) {
+      return res.status(400).send("Please upload exactly two images for comparison.");
+  }
+
+  // Read both images as byte data
+  const sourceImageBytes = fs.readFileSync(req.files[0].path);
+  const targetImageBytes = fs.readFileSync(req.files[1].path);
+
+  // Set up parameters for Rekognition
+  const params = {
+      SourceImage: { Bytes: sourceImageBytes },
+      TargetImage: { Bytes: targetImageBytes },
+      SimilarityThreshold: 70
+  };
+
+  try {
+      const command = new CompareFacesCommand(params);
+      const response = await client.send(command);
+
+      // Clean up uploaded images
+      req.files.forEach(file => fs.unlinkSync(file.path));
+
+      // Process and format response data
+      const faceMatches = response.FaceMatches.map(match => ({
+          position: match.Face.BoundingBox,
+          similarity: match.Similarity
+      }));
+
+      console.log("Face comparison results:", faceMatches);
+      res.json({ faceMatches });
+  } catch (error) {
+      console.error("Error comparing faces:", error);
+      res.status(500).send("Error comparing images");
+  }
+});
+
+//facial analysis on image in S3 bucket
+
+//facial comparison on images stored in S3 bucket
 
 module.exports = router;
 

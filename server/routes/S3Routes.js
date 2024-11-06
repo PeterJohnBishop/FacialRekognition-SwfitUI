@@ -25,13 +25,12 @@ async function uploadImageToS3(filePath, bucketName, key) {
       Bucket: bucketName,
       Key: key,
       Body: fileStream,
-      ContentType: 'image/jpeg' // Adjust based on your image type
+      ContentType: 'image/jpeg' 
     }
   });
 
   await upload.done();
 
-  // Construct the S3 file URL
   const fileUrl = `https://${bucketName}.s3.amazonaws.com/${key}`;
   return fileUrl;
 }
@@ -39,7 +38,7 @@ async function uploadImageToS3(filePath, bucketName, key) {
 router.post('/upload', upload.single('image'), async (req, res) => {
   const bucketName = 'solidcarnivals3rekog';
   const filePath = req.file.path;
-  const key = `uploads/${req.file.originalname}`;
+  const key = `uploads/${Date.now()}_${req.file.originalname}`;
 
   try {
     const imageUrl = await uploadImageToS3(filePath, bucketName, key);

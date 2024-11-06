@@ -10,13 +10,26 @@ import SwiftUI
 struct LoginUserView: View {
     @State var userViewModel: UserViewModel = UserViewModel()
     @State var success: Bool = false
+    @State var newUser: Bool = false
     
     var body: some View {
         NavigationStack{
                     VStack{
+                        HStack{
+                            Spacer()
+                            Button("Register", action: {
+                                newUser = true
+                            }).foregroundStyle(.black)
+                                .fontWeight(.light)
+                                .padding()
+                                .navigationDestination(isPresented: $newUser, destination: {
+                                    CreateUserView().navigationBarBackButtonHidden(true)
+                                })
+                        }
+                        Spacer()
                         Text("Login").font(.system(size: 34))
                             .fontWeight(.ultraLight)
-                        
+                        Divider().padding()
                         TextField("Email", text: $userViewModel.user.email)
                             .tint(.black)
                             .autocapitalization(.none)
@@ -35,7 +48,7 @@ struct LoginUserView: View {
                                 success = await userViewModel.authenticateUser()
                             }
                         }).navigationDestination(isPresented: $success, destination: {
-                            SuccessView()
+                            SuccessView(userViewModel: $userViewModel).navigationBarBackButtonHidden(true)
                         })
                         .fontWeight(.ultraLight)
                         .foregroundColor(.black)
@@ -45,13 +58,7 @@ struct LoginUserView: View {
                                 .fill(Color.white)
                                 .shadow(color: .gray.opacity(0.4), radius: 4, x: 2, y: 2)
                         )
-                        Divider().padding()
-                        Button("I need to create an account.", action: {
-                            Task{
-                                success = await userViewModel.authenticateUser()
-                            }
-                        }).foregroundStyle(.black)
-                            .padding()
+                        Spacer()
                     }.onAppear{
                         
                     }

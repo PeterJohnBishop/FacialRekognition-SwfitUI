@@ -3,12 +3,13 @@ const firebase = require('../firebase.js')
 
 router.route('/create').post( async (req, res) => {
 
-    const { first, last } = req.body;
+    const { first, last, email } = req.body;
     const db = firebase.firestore();
 
     db.collection("users").add({
         first: first,
         last: last,
+        email: email
     })
     .then((docRef) => {
         res.status(200).json({ id: docRef.id });
@@ -66,6 +67,26 @@ docRef.get().then((doc) => {
     res.status(400).json({ code: error.code, error: error.message });
 });
 });
+
+router.route('/read_one_email').post( async (req, res) => {
+    const { email } = req.body;
+    const db = firebase.firestore();
+
+    db.collection("users").where("email", "==", email)
+    .get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            if (doc.exists) {
+                res.status(200).json(doc.data());
+            } else {
+                res.status(400).json({ message: "Doc with that email not found." });
+            }
+        });
+    })
+    .catch((error) => {
+        res.status(400).json({ code: error.code, error: error.message });
+    });
+})
 
 router.route('/delete').post( async (req, res) => {
     

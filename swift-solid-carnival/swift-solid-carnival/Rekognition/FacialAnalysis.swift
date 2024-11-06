@@ -9,29 +9,38 @@ import Foundation
 import SwiftUI
 import PhotosUI
 
-struct CameraView: View {
+struct FacialAnalysis: View {
     @State private var showCamera = false
     @State private var selectedImage: UIImage?
+    @State private var selectedImages: [UIImage]?
     @State var rekognitionViewModel = RekognitionViewModel()
     @State var s3ViewModel: S3ViewModel = S3ViewModel()
     
     var body: some View {
         VStack {
+            
             if let selectedImage {
                
                     Image(uiImage: selectedImage)
                         .resizable()
                         .scaledToFit()
                         .onAppear {
-                            //rekognitionViewModel.analyzeImageWithAWSRekognition(image: selectedImage)
-                            s3ViewModel.uploadImageToS3(image: selectedImage)
+                            rekognitionViewModel.analyzeImageWithAWSRekognition(image: selectedImage) //analyze face
+                            s3ViewModel.uploadImageToS3(image: selectedImage) // upload image to S3 bucket
+                        }
+                        .onTapGesture {
+                            self.showCamera.toggle()
                         }
                 
             } else {
+
                 Button(action: {
                     self.showCamera.toggle()
                 }, label: {
-                    Image(systemName: "camera.circle.fill").foregroundStyle(.black)
+                    Image(systemName: "camera.circle.fill")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .foregroundStyle(.black)
                 }).fullScreenCover(isPresented: $showCamera) {
                     accessCameraView(selectedImage: $selectedImage)
                         .background(.black)
@@ -88,5 +97,5 @@ struct CameraView: View {
 
 
 #Preview {
-    CameraView()
+    FacialAnalysis()
 }
