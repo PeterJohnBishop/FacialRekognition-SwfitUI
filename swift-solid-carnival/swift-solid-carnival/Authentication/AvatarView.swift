@@ -8,14 +8,16 @@
 import SwiftUI
 import PhotosUI
 
-struct SuccessView: View {
+struct AvatarView: View {
     @State var back: Bool = false
     @Binding var userViewModel: UserViewModel
     @State var imagePickerViewModel: ImagePickerViewModel = ImagePickerViewModel()
     @State var uid: String = ""
-    @State private var showCamera = false
-    @State private var selectedImage: UIImage?
-    @State private var showImagePicker: Bool = true
+    @State var showCamera = false
+    @State var selectedImage: UIImage?
+    @State var showImagePicker: Bool = true
+    @State var s3ViewModel: S3ViewModel = S3ViewModel()
+    @State var uploaded: Bool = false
     
     var body: some View {
         NavigationStack{
@@ -34,7 +36,7 @@ struct SuccessView: View {
                     Spacer()
                 }
                 if(showImagePicker) {
-                    ImagePickerView(imagePickerViewModel: $imagePickerViewModel, uploadType: "profile").padding()
+                    ImagePickerView(imagePickerViewModel: $imagePickerViewModel, uploaded: $uploaded, uploadType: "profile").padding()
                 }
                 if let selectedImage {
                    
@@ -62,9 +64,12 @@ struct SuccessView: View {
                         Spacer()
                         Button(action: {
                             //upload function here!
-                        }) {
+                            Task{
+                                uploaded = await s3ViewModel.uploadImageToS3(image: selectedImage)
+                            }
+                        }, label: {
                             Image(systemName: "checkmark").tint(Color.black)
-                        }
+                        })
                         Spacer()
                     }.padding()
                     
@@ -100,5 +105,5 @@ struct SuccessView: View {
 }
 
 //#Preview {
-//    SuccessView()
+//    AvatarView()
 //}

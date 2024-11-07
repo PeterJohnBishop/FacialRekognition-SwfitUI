@@ -10,7 +10,10 @@ import PhotosUI
 
 struct ImagePickerView: View {
     @Binding var imagePickerViewModel: ImagePickerViewModel
+    @Binding var uploaded: Bool
+    @State var s3ViewModel: S3ViewModel = S3ViewModel()
     var uploadType: String = ""
+    
 
         var body: some View {
             VStack {
@@ -62,6 +65,29 @@ struct ImagePickerView: View {
                                     imagePickerViewModel.videoURL = nil
                                     imagePickerViewModel.showImagePicker = true
                                 }
+                            HStack{
+                                Spacer()
+                                Button(action: {
+                                    imagePickerViewModel.selectedItems = []
+                                    imagePickerViewModel.images = []
+                                    imagePickerViewModel.imageURLs = []
+                                    imagePickerViewModel.videoURL = nil
+                                    imagePickerViewModel.showImagePicker = true
+                                }, label: {
+                                    Image(systemName: "xmark").tint(Color.black)
+                                })
+                                Spacer()
+                                Button(action: {
+                                    //upload function here!
+                                    Task{
+                                        uploaded = await s3ViewModel.uploadImageToS3(image: image)
+                                        
+                                    }
+                                }) {
+                                    Image(systemName: "checkmark").tint(Color.black)
+                                }
+                                Spacer()
+                            }.padding()
                         }
                     } else {
                         ForEach(imagePickerViewModel.images, id: \.self) { image in
@@ -73,6 +99,28 @@ struct ImagePickerView: View {
                                         .cornerRadius(20)
                                         .clipped() // Ensures the image doesn't overflow outside the rounded corners
                                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
+                            HStack{
+                                Spacer()
+                                Button(action: {
+                                    imagePickerViewModel.selectedItems = []
+                                    imagePickerViewModel.images = []
+                                    imagePickerViewModel.imageURLs = []
+                                    imagePickerViewModel.videoURL = nil
+                                    imagePickerViewModel.showImagePicker = true
+                                }, label: {
+                                    Image(systemName: "xmark").tint(Color.black)
+                                })
+                                Spacer()
+                                Button(action: {
+                                    //upload function here!
+                                    Task{
+                                        uploaded = await s3ViewModel.uploadImageToS3(image: image)
+                                    }
+                                }) {
+                                    Image(systemName: "checkmark").tint(Color.black)
+                                }
+                                Spacer()
+                            }.padding()
                         }
                     }
                 }
@@ -80,34 +128,6 @@ struct ImagePickerView: View {
                 if let videoURL = imagePickerViewModel.videoURL {
                     Text("Video Selected: \(imagePickerViewModel.videoURL!.lastPathComponent)")
                     //needs player
-                }
-                
-                if (!imagePickerViewModel.showImagePicker) {
-                    HStack{
-                        Spacer()
-                        Button(action: {
-                            imagePickerViewModel.selectedItems = []
-                            imagePickerViewModel.images = []
-                            imagePickerViewModel.imageURLs = []
-                            imagePickerViewModel.videoURL = nil
-                            imagePickerViewModel.showImagePicker = true
-                        }, label: {
-                            Image(systemName: "xmark").tint(Color.black)
-                        })
-                        Spacer()
-                        Button(action: {
-                            //upload function here!
-                        }) {
-                            Image(systemName: "checkmark").tint(Color.black)
-                        }
-//                        .onChange(of: imagePickerViewModel.imageURLs) { oldValue, newValue in
-//                            if(oldValue.count < newValue.count) {
-//                                checkColor = Color.green
-//                            }
-//                        }
-//                        .disabled(imagePickerViewModel.isUploading)
-                        Spacer()
-                    }.padding()
                 }
             }
             .padding()

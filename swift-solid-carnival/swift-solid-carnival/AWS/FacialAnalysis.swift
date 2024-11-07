@@ -26,7 +26,9 @@ struct FacialAnalysis: View {
                         .scaledToFit()
                         .onAppear {
                             rekognitionViewModel.analyzeImageWithAWSRekognition(image: selectedImage) //analyze face
-                            s3ViewModel.uploadImageToS3(image: selectedImage) // upload image to S3 bucket
+                            Task{
+                                await s3ViewModel.uploadImageToS3(image: selectedImage) // upload image to S3 bucket
+                            }
                         }
                         .onTapGesture {
                             self.showCamera.toggle()

@@ -61,7 +61,7 @@ struct CreateUserView: View {
                             .shadow(color: .gray.opacity(0.4), radius: 4, x: 2, y: 2)
                     )
                     .navigationDestination(isPresented: $success, destination: {
-                        SuccessView(userViewModel: $userViewModel).navigationBarBackButtonHidden(true)
+                        AvatarView(userViewModel: $userViewModel).navigationBarBackButtonHidden(true)
                     })
                 Spacer()
             }
