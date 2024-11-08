@@ -40,7 +40,7 @@ import UIKit
             
             // Now 'data' is guaranteed to be non-optional
             if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-               let url = json["imageUrl"] as? String {
+               let url = json["uploadURL"] as? String {
                 print("Parsed JSON response:", json)
                 self.imageUrl = url
                 print(self.imageUrl)

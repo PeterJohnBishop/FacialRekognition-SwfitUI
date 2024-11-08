@@ -9,8 +9,8 @@ import SwiftUI
 import PhotosUI
 
 struct AvatarView: View {
-    @State var back: Bool = false
     @Binding var userViewModel: UserViewModel
+    @State var back: Bool = false
     @State var imagePickerViewModel: ImagePickerViewModel = ImagePickerViewModel()
     @State var uid: String = ""
     @State var showCamera = false
@@ -18,6 +18,8 @@ struct AvatarView: View {
     @State var showImagePicker: Bool = true
     @State var s3ViewModel: S3ViewModel = S3ViewModel()
     @State var uploaded: Bool = false
+    @State var saved: Bool = false
+    @State var processing: Bool = false
     
     var body: some View {
         NavigationStack{
@@ -35,11 +37,16 @@ struct AvatarView: View {
                         })
                     Spacer()
                 }
+                
+                // View to select from the device image gallery
                 if(showImagePicker) {
-                    ImagePickerView(imagePickerViewModel: $imagePickerViewModel, uploaded: $uploaded, uploadType: "profile").padding()
+                    ImagePickerView(imagePickerViewModel: $imagePickerViewModel, userViewModel: $userViewModel, uploaded: $uploaded, saved: $saved, processing: $processing, uploadType: "profile").padding()
                 }
+                
+                // View to capture an image with the device camera
                 if let selectedImage {
-                   
+                    
+                    // Display the captured image
                     Image(uiImage: selectedImage)
                         .resizable()
                         .scaledToFill()
@@ -52,6 +59,14 @@ struct AvatarView: View {
                             .onTapGesture {
                                 self.showCamera.toggle()
                             }
+                    HStack {
+                        TextField("Username", text: $userViewModel.userData.displayName)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    // Saving will create the UserData document
                     HStack{
                         Spacer()
                         Button(action: {
@@ -63,17 +78,29 @@ struct AvatarView: View {
                         })
                         Spacer()
                         Button(action: {
+                            processing = true
                             //upload function here!
                             Task{
                                 uploaded = await s3ViewModel.uploadImageToS3(image: selectedImage)
+                                if (uploaded) {
+                                    userViewModel.userData.profileImg = s3ViewModel.imageUrl
+                                    saved = await userViewModel.saveUserData()
+                                }
+                                processing = false
                             }
                         }, label: {
-                            Image(systemName: "checkmark").tint(Color.black)
+                            if (processing) {
+                                ProgressView()
+                            } else {
+                                Image(systemName: "checkmark").tint(Color.black)
+                            }
                         })
                         Spacer()
                     }.padding()
                     
                 } else {
+                    
+                    // Camera button appaers when the selectedImage is nil
                     Button(action: {
                         self.showCamera.toggle()
                     }, label: {
@@ -84,21 +111,27 @@ struct AvatarView: View {
                     }).fullScreenCover(isPresented: $showCamera) {
                         accessCameraView(selectedImage: $selectedImage)
                             .background(.black)
-                    }.onAppear{
-                        
                     }
+                    
                 }
-        
                 Spacer()
             }.onAppear{
+                
                 Task{
                     let success = await userViewModel.getCurrentUser()
+                    saved = await userViewModel.getUserData()
                     if(!success) {
                         back = true
+                    } else {
+                        userViewModel.userData.email = userViewModel.user.email
                     }
                 }
+                
             }.navigationDestination(isPresented: $back, destination: {
                 LoginUserView().navigationBarBackButtonHidden(true)
+            })
+            .navigationDestination(isPresented: $saved, destination: {
+                ProfileView().navigationBarBackButtonHidden(true)
             })
         }
     }

@@ -12,6 +12,16 @@ import UIKit
 @Observable class RekognitionViewModel {
     var faceDetails: [FaceDetail]?
     
+    func extractFileName(from urlString: String) -> String {
+        let prefix = "https://solidcarnivals3rekog.s3.us-east-1.amazonaws.com/uploads/"
+        
+        if urlString.hasPrefix(prefix) {
+            return String(urlString.dropFirst(prefix.count))
+        } else {
+            return urlString
+        }
+    }
+    
     func analyzeImageWithAWSRekognition(image: UIImage) {
         guard let url = URL(string: "http://192.168.0.158:4000/rekognition/face_local") else { return }
         guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
@@ -112,5 +122,53 @@ import UIKit
             }
         }.resume()
     }
+    
+    func compareWithAWSRekognition(source: String, target: String) async -> Bool {
+        
+        let sourceImageName = extractFileName(from: source)
+        let targetImageName = extractFileName(from: target)
+        
+        guard let url = URL(string: "http://192.168.0.158:4000/rekognition/compare_faces_s3") else { return false }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body: [String: Any] = [
+            "source": sourceImageName,
+            "target": targetImageName
+        ]
+        
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: []) else {
+            print("An error occured preparing the request to logout!")
+            return false
+        }
+        
+        request.httpBody = jsonData
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                // Decode the JSON response to get the uid
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                    print(json)
+                    return true
+                } else {
+                    return false
+                }
+                   
+            } else {
+                DispatchQueue.main.async {
+                   print("Error authenticating user: \(response)")
+                }
+                return false
+            }
+        } catch {
+            print("Request error: \(error)")
+            return false
+        }
+    }
+
 
 }

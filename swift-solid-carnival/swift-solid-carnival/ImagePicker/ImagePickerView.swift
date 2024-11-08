@@ -10,11 +10,13 @@ import PhotosUI
 
 struct ImagePickerView: View {
     @Binding var imagePickerViewModel: ImagePickerViewModel
+    @Binding var userViewModel: UserViewModel
     @Binding var uploaded: Bool
+    @Binding var saved: Bool
+    @Binding var processing: Bool
     @State var s3ViewModel: S3ViewModel = S3ViewModel()
     var uploadType: String = ""
-    
-
+   
         var body: some View {
             VStack {
                 if (imagePickerViewModel.showImagePicker) {
@@ -65,6 +67,12 @@ struct ImagePickerView: View {
                                     imagePickerViewModel.videoURL = nil
                                     imagePickerViewModel.showImagePicker = true
                                 }
+                            HStack {
+                                TextField("Username", text: $userViewModel.userData.displayName)
+                                    .multilineTextAlignment(.center)
+                                    .padding()
+                            }
+                            .frame(maxWidth: .infinity)
                             HStack{
                                 Spacer()
                                 Button(action: {
@@ -78,14 +86,23 @@ struct ImagePickerView: View {
                                 })
                                 Spacer()
                                 Button(action: {
+                                    processing = true
                                     //upload function here!
                                     Task{
                                         uploaded = await s3ViewModel.uploadImageToS3(image: image)
-                                        
+                                        if (uploaded) {
+                                            userViewModel.userData.profileImg = s3ViewModel.imageUrl
+                                            saved = await userViewModel.saveUserData()
+                                        }
+                                        processing = false
                                     }
-                                }) {
-                                    Image(systemName: "checkmark").tint(Color.black)
-                                }
+                                }, label:  {
+                                    if (processing) {
+                                        ProgressView()
+                                    } else {
+                                        Image(systemName: "checkmark").tint(saved ? Color.green : Color.black)
+                                    }
+                                })
                                 Spacer()
                             }.padding()
                         }

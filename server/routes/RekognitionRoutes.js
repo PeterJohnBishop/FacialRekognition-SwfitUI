@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { RekognitionClient, DetectFacesCommand, CompareFacesCommand } = require('@aws-sdk/client-rekognition');
+const { RekognitionClient, DetectFacesCommand, CompareFacesCommand, QualityFilter } = require('@aws-sdk/client-rekognition');
 require('dotenv').config();
 const multer = require('multer');
 const fs = require('fs');
@@ -75,28 +75,34 @@ router.route('/compare_faces_local').post(upload.array('images', 2), async (req,
         res.status(500).send("Error comparing images");
     }
 });
-router.route('/compare_faces_local').post(upload.array('images', 2), async (req, res) => {
-  if (req.files.length !== 2) {
-      return res.status(400).send("Please upload exactly two images for comparison.");
-  }
 
-  // Read both images as byte data
-  const sourceImageBytes = fs.readFileSync(req.files[0].path);
-  const targetImageBytes = fs.readFileSync(req.files[1].path);
+router.route('/compare_faces_s3').post(async (req, res) => {
 
+  const { source, target } = req.body;
   // Set up parameters for Rekognition
-  const params = {
-      SourceImage: { Bytes: sourceImageBytes },
-      TargetImage: { Bytes: targetImageBytes },
-      SimilarityThreshold: 70
+  const input = { // CompareFacesRequest
+    SourceImage: { // Image
+      Bytes: new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")
+      S3Object: { // S3Object
+        Bucket: process.env.AWS_BUCKET,
+        Name: source,
+      },
+    },
+    TargetImage: {
+      Bytes: new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")
+      S3Object: {
+        Bucket: process.env.AWS_REKOGNITION_BUCKET,
+        Name: target,
+      },
+    },
+    SimilarityThreshold: 70.00,
+    // QualityFilter: "NONE" || "AUTO" || "LOW" || "MEDIUM" || "HIGH",
+    QualityFilter: "AUTO"
   };
 
   try {
-      const command = new CompareFacesCommand(params);
+      const command = new CompareFacesCommand(input);
       const response = await client.send(command);
-
-      // Clean up uploaded images
-      req.files.forEach(file => fs.unlinkSync(file.path));
 
       // Process and format response data
       const faceMatches = response.FaceMatches.map(match => ({
@@ -111,10 +117,6 @@ router.route('/compare_faces_local').post(upload.array('images', 2), async (req,
       res.status(500).send("Error comparing images");
   }
 });
-
-//facial analysis on image in S3 bucket
-
-//facial comparison on images stored in S3 bucket
 
 module.exports = router;
 

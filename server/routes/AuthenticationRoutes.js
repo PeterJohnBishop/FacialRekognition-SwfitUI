@@ -39,7 +39,7 @@ router.route('/current_user').get((req,res) => {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/v8/firebase.User
     // ...
-    res.status(200).json({ uid: user.uid });
+    res.status(200).json(user);
   } else {
     // No user is signed in.
     res.status(400);

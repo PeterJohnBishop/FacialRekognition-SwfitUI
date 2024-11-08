@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CreateUserView: View {
     @State var userViewModel: UserViewModel = UserViewModel()
+    @State var password: String = ""
     @State var confirmPassword: String = ""
     @State var success: Bool = false
     @State var existingUser: Bool = false
@@ -36,7 +37,7 @@ struct CreateUserView: View {
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
                     .padding()
-                SecureField("Password", text: $userViewModel.user.password)
+                SecureField("Password", text: $password)
                     .tint(.black)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
@@ -50,6 +51,7 @@ struct CreateUserView: View {
                 
                 Button("Submit", action: {
                     Task{
+                        userViewModel.user.password = password
                         success = await userViewModel.createNewUser()
                     }
                 }).fontWeight(.ultraLight)

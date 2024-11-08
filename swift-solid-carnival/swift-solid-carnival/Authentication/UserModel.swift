@@ -10,7 +10,7 @@ import Foundation
 struct UserModel: Codable, Equatable {
     var uid: String?
     var email: String
-    var password: String
+    var password: String?
 
     private enum CodingKeys: String, CodingKey {
         case uid
@@ -18,15 +18,13 @@ struct UserModel: Codable, Equatable {
         case password
     }
 
-    // Decode Unix timestamp as Date
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         uid = try container.decodeIfPresent(String.self, forKey: .uid)
         email = try container.decode(String.self, forKey: .email)
-        password = try container.decode(String.self, forKey: .password)
+        password = try container.decodeIfPresent(String.self, forKey: .password)
     }
 
-    // Encode Date as Unix timestamp
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(uid, forKey: .uid)
@@ -34,7 +32,6 @@ struct UserModel: Codable, Equatable {
         try container.encode(password, forKey: .password)
     }
     
-    // Init method with default values
     init(uid: String = "", email: String = "", password: String = "") {
         self.uid = uid
         self.email = email
