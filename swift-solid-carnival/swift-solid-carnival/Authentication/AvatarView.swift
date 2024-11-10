@@ -131,7 +131,7 @@ struct AvatarView: View {
                 LoginUserView().navigationBarBackButtonHidden(true)
             })
             .navigationDestination(isPresented: $saved, destination: {
-                ProfileView().navigationBarBackButtonHidden(true)
+                VerifyView().navigationBarBackButtonHidden(true)
             })
         }
     }

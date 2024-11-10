@@ -80,16 +80,15 @@ router.route('/compare_faces_s3').post(async (req, res) => {
 
   const { source, target } = req.body;
   // Set up parameters for Rekognition
+
   const input = { // CompareFacesRequest
     SourceImage: { // Image
-      Bytes: new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")
       S3Object: { // S3Object
-        Bucket: process.env.AWS_BUCKET,
+        Bucket: process.env.AWS_REKOGNITION_BUCKET,
         Name: source,
       },
     },
     TargetImage: {
-      Bytes: new Uint8Array(), // e.g. Buffer.from("") or new TextEncoder().encode("")
       S3Object: {
         Bucket: process.env.AWS_REKOGNITION_BUCKET,
         Name: target,
@@ -101,20 +100,26 @@ router.route('/compare_faces_s3').post(async (req, res) => {
   };
 
   try {
-      const command = new CompareFacesCommand(input);
-      const response = await client.send(command);
+    const command = new CompareFacesCommand(input);
+    const response = await client.send(command);
 
-      // Process and format response data
-      const faceMatches = response.FaceMatches.map(match => ({
-          position: match.Face.BoundingBox,
-          similarity: match.Similarity
-      }));
+    // Extract similarity value
+    const faceMatches = response.FaceMatches.map(match => ({
+      position: match.Face.BoundingBox,
+      similarity: match.Similarity,  // This is the similarity value
+    }));
 
-      console.log("Face comparison results:", faceMatches);
-      res.json({ faceMatches });
+    console.log("Face comparison results:", faceMatches);
+
+    // Return similarity value from the first face match
+    if (faceMatches.length > 0) {
+      res.json({ similarity: faceMatches[0].similarity });
+    } else {
+      res.status(404).send("No faces matched.");
+    }
   } catch (error) {
-      console.error("Error comparing faces:", error);
-      res.status(500).send("Error comparing images");
+    console.error("Error comparing faces:", error);
+    res.status(500).send("Error comparing images");
   }
 });
 

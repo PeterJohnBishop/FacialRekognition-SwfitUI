@@ -13,7 +13,7 @@ import UIKit
     var imageUrl: String = ""
     
     func uploadImageToS3(image: UIImage) async -> Bool {
-        guard let url = URL(string: "http://192.168.0.158:4000/s3/upload") else { return false }
+        guard let url = URL(string: "http://192.168.0.134:4000/s3/upload") else { return false }
         guard let imageData = image.jpegData(compressionQuality: 0.8) else { return false }
 
         var request = URLRequest(url: url)

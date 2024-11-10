@@ -11,10 +11,11 @@ import UIKit
 
 @Observable class RekognitionViewModel {
     var faceDetails: [FaceDetail]?
+    var similarity: Double?
     
     func extractFileName(from urlString: String) -> String {
-        let prefix = "https://solidcarnivals3rekog.s3.us-east-1.amazonaws.com/uploads/"
-        
+        let prefix = "https://solidcarnivals3rekog.s3.amazonaws.com/"
+                
         if urlString.hasPrefix(prefix) {
             return String(urlString.dropFirst(prefix.count))
         } else {
@@ -23,7 +24,7 @@ import UIKit
     }
     
     func analyzeImageWithAWSRekognition(image: UIImage) {
-        guard let url = URL(string: "http://192.168.0.158:4000/rekognition/face_local") else { return }
+        guard let url = URL(string: "http://192.168.0.134:4000/rekognition/face_local") else { return }
         guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
 
         var request = URLRequest(url: url)
@@ -124,11 +125,11 @@ import UIKit
     }
     
     func compareWithAWSRekognition(source: String, target: String) async -> Bool {
-        
+            
         let sourceImageName = extractFileName(from: source)
         let targetImageName = extractFileName(from: target)
         
-        guard let url = URL(string: "http://192.168.0.158:4000/rekognition/compare_faces_s3") else { return false }
+        guard let url = URL(string: "http://192.168.0.134:4000/rekognition/compare_faces_s3") else { return false }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -140,7 +141,7 @@ import UIKit
         ]
         
         guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: []) else {
-            print("An error occured preparing the request to logout!")
+            print("An error occured preparing the request!")
             return false
         }
         
@@ -150,17 +151,24 @@ import UIKit
             let (data, response) = try await URLSession.shared.data(for: request)
 
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                // Decode the JSON response to get the uid
+                // Decode the JSON response to get the similarity value
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    print(json)
-                    return true
+                    if let similarity = json["similarity"] as? Double {
+                        print("Similarity: \(similarity)")
+                        // You can now return or use the similarity value as needed
+                        self.similarity = similarity
+                        return similarity >= 90.0  // For example, you can check if similarity is above a threshold
+                    } else {
+                        print("No similarity value found in the response")
+                        return false
+                    }
                 } else {
+                    print("Failed to decode JSON response")
                     return false
                 }
-                   
             } else {
                 DispatchQueue.main.async {
-                   print("Error authenticating user: \(response)")
+                    print("Error comparing image: \(response)")
                 }
                 return false
             }

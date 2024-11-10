@@ -21,7 +21,7 @@ const allowedOrigins = [
   /^http:\/\/localhost(:\d+)?$/,
   'http://192.168.0.165',
   'http://localhost:3000',
-  'http://192.168.0.165:3000',
+  'http://192.168.0.233:4000',
 ];
 const corsOptions = {
   origin: (origin, callback) => {

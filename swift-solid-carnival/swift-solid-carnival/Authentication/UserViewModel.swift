@@ -14,7 +14,7 @@ import CryptoKit
     var users: [UserModel] = []
     var userData: UserData = UserData()
     var usersData: [UserData] = []
-    var baseURL: String = "http://192.168.0.158:4000/"
+    var baseURL: String = "http://192.168.0.134:4000/"
     var error: String = ""
     
     func createNewUser() async -> Bool {
