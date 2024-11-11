@@ -37,8 +37,11 @@ struct AvatarView: View {
                         })
                     Spacer()
                 }
-                Text("Facial Verification Setup")
-                Text("Take or Select an Image")
+                HStack{
+                    Spacer()
+                    Text("Take or Select an Image for Facial Comparision Authentication").padding()
+                    Spacer()
+                }
                 Spacer()
                 
                 // View to select from the device image gallery

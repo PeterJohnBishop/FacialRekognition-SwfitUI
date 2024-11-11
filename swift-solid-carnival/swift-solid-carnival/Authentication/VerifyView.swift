@@ -22,6 +22,14 @@ struct VerifyView: View {
     var body: some View {
         NavigationStack{
             VStack{
+                HStack{
+                    Button(action: {
+                        logout = true
+                    }, label: {
+                        Image(systemName: "chevron.left").foregroundStyle(.black)
+                    }).padding()
+                    Spacer()
+                }
                 Spacer()
                 if let selectedImage {
                     // Display the captured image
@@ -53,6 +61,7 @@ struct VerifyView: View {
                         accessCameraView(selectedImage: $selectedImage)
                             .background(.black)
                     }
+                    Text("Facial Analysis Required").padding()
                     
                 }
                 if (processing) {
@@ -62,23 +71,6 @@ struct VerifyView: View {
                         ScrollView(content: {
                             Text("Similarity: \(rekognitionViewModel.similarity ?? 0.00)")
                         })
-                    } else {
-                        Text("Facial Verifcation Failed!")
-                        HStack{
-                            Spacer()
-                            Button(action: {
-                                //back to login, logout current user
-                            }, label: {
-                                Text("Back")
-                            })
-                            Spacer()
-                            Button(action: {
-                                //reload the view
-                            }, label: {
-                                Text("Try Again")
-                            })
-                            Spacer()
-                        }
                     }
                 }
                 Spacer()
@@ -91,6 +83,9 @@ struct VerifyView: View {
                     }
                 }
             }
+            .navigationDestination(isPresented: $logout, destination: {
+                LoginUserView().navigationBarBackButtonHidden(true)
+            })
         }
     }
 }

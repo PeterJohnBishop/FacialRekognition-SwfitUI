@@ -29,8 +29,8 @@ struct CreateUserView: View {
     }
     
     func passwordValidation() -> Bool {
-        if userViewModel.user.password!.count >= 8 {
-            if userViewModel.user.password == confirmPassword {
+        if password.count >= 8 {
+            if password == confirmPassword {
                 return true
             } else {
                 error = "Passwords must match."
