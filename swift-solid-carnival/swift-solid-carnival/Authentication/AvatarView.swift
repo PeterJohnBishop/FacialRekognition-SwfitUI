@@ -37,6 +37,9 @@ struct AvatarView: View {
                         })
                     Spacer()
                 }
+                Text("Facial Verification Setup")
+                Text("Take or Select an Image")
+                Spacer()
                 
                 // View to select from the device image gallery
                 if(showImagePicker) {

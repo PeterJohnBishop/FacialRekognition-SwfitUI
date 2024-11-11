@@ -5,7 +5,7 @@ https://solid-carnival-aa8d913149b4.herokuapp.com/ deployed to Heroku
 As a user I want to create an account and login.
 - When I create an account I'll submit a photo of myself to compare in future logins.
 - When I login I'll use email and password authentication.
-- When I login I'll verify my identity by submitting a photo take within 2min of submission.
+- When I login I'll verify my identity by submitting a photo and comparing it to an original.
 
 
 #FIREBSAE AUTHENTICATION API
@@ -38,6 +38,8 @@ POST /s3/upload > upload an image to an S3 Bucket.
 POST /rekognition/face_local > send an image for Rekognition analysis.
 
 POST /rekognition/compare_faces_local
+
+POST /rekognition/compare_faces_s3 > compare two images stored in the S3 bucket used for facial recognition identity verification 
 
 
 

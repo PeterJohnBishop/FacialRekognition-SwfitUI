@@ -24,7 +24,6 @@ struct VerifyView: View {
             VStack{
                 Spacer()
                 if let selectedImage {
-                    
                     // Display the captured image
                     Image(uiImage: selectedImage)
                         .resizable()
@@ -32,20 +31,7 @@ struct VerifyView: View {
                         .frame(width: 325, height: 325)
                         .clipShape(Circle())
                         .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 5)
-                        .onTapGesture {
-                            self.showCamera.toggle()
-                        }
-                    
-                    HStack{
-                        Spacer()
-                        Button(action: {
-                            self.selectedImage = nil
-                            showCamera = false
-                        }, label: {
-                            Image(systemName: "xmark").tint(Color.black)
-                        })
-                        Spacer()
-                        Button(action: {
+                        .onAppear{
                             processing = true
                             //upload function here!
                             Task{
@@ -53,15 +39,7 @@ struct VerifyView: View {
                                 compared = await rekognitionViewModel.compareWithAWSRekognition(source: userViewModel.userData.profileImg, target: s3ViewModel.imageUrl)
                                 processing = false
                             }
-                        }, label: {
-                            if (processing) {
-                                ProgressView()
-                            } else {
-                                Image(systemName: "checkmark").tint(Color.black)
-                            }
-                        })
-                        Spacer()
-                    }.padding()
+                        }
                 } else {
                     
                     Button(action: {
@@ -77,12 +55,33 @@ struct VerifyView: View {
                     }
                     
                 }
-                if (compared) {
-                    ScrollView(content: {
-                        Text("Similarity: \(rekognitionViewModel.similarity ?? 0.00)")
-                    })
+                if (processing) {
+                    ProgressView()
+                } else {
+                    if (compared) {
+                        ScrollView(content: {
+                            Text("Similarity: \(rekognitionViewModel.similarity ?? 0.00)")
+                        })
+                    } else {
+                        Text("Facial Verifcation Failed!")
+                        HStack{
+                            Spacer()
+                            Button(action: {
+                                //back to login, logout current user
+                            }, label: {
+                                Text("Back")
+                            })
+                            Spacer()
+                            Button(action: {
+                                //reload the view
+                            }, label: {
+                                Text("Try Again")
+                            })
+                            Spacer()
+                        }
+                    }
                 }
-                
+                Spacer()
             }.onAppear{
                 Task{
                     let loggedIn = await userViewModel.getCurrentUser()

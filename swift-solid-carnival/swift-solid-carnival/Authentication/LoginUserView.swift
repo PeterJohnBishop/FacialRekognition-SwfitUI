@@ -50,7 +50,7 @@ struct LoginUserView: View {
                                 success = await userViewModel.authenticateUser()
                             }
                         }).navigationDestination(isPresented: $success, destination: {
-                            AvatarView(userViewModel: $userViewModel).navigationBarBackButtonHidden(true)
+                            VerifyView().navigationBarBackButtonHidden(true)
                         })
                         .fontWeight(.ultraLight)
                         .foregroundColor(.black)

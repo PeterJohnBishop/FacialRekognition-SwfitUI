@@ -13,6 +13,36 @@ struct CreateUserView: View {
     @State var confirmPassword: String = ""
     @State var success: Bool = false
     @State var existingUser: Bool = false
+    @State var error: String = ""
+    @State var showAlert: Bool = false
+    
+    func isValidEmail() -> Bool {
+        let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        if emailPredicate.evaluate(with: userViewModel.user.email) {
+            return true
+        } else {
+            error = "Must enter a valid email address."
+            showAlert = true
+            return false
+        }
+    }
+    
+    func passwordValidation() -> Bool {
+        if userViewModel.user.password!.count >= 8 {
+            if userViewModel.user.password == confirmPassword {
+                return true
+            } else {
+                error = "Passwords must match."
+                showAlert = true
+                return false
+            }
+        } else {
+            error = "Password must be at least 8 characters long."
+            showAlert = true
+            return false
+        }
+    }
     
     var body: some View {
         NavigationStack{
@@ -49,11 +79,16 @@ struct CreateUserView: View {
                     .disableAutocorrection(true)
                     .padding()
                 
-                Button("Submit", action: {
-                    Task{
-                        userViewModel.user.password = password
-                        success = await userViewModel.createNewUser()
+                Button("Next", action: {
+                    if isValidEmail() {
+                        if passwordValidation() {
+                            Task{
+                                userViewModel.user.password = password
+                                success = await userViewModel.createNewUser()
+                            }
+                        }
                     }
+                    
                 }).fontWeight(.ultraLight)
                     .foregroundColor(.black)
                     .padding()
@@ -65,6 +100,15 @@ struct CreateUserView: View {
                     .navigationDestination(isPresented: $success, destination: {
                         AvatarView(userViewModel: $userViewModel).navigationBarBackButtonHidden(true)
                     })
+                    .alert("Error", isPresented: $showAlert) {
+                                    Button("OK", role: .cancel) {
+                                        userViewModel.user.email = ""
+                                        password = ""
+                                        confirmPassword = ""
+                                    }
+                                } message: {
+                                    Text(error)
+                                }
                 Spacer()
             }
         }
