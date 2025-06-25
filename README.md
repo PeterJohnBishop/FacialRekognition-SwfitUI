@@ -1,5 +1,5 @@
 # Facial Rekognition Authentication
-## AWS Rekognition S3 | Firebase Auth | Firestore | SwiftUI
+### AWS Rekognition S3 | Firebase Auth | Firestore | SwiftUI
 
 https://solid-carnival-aa8d913149b4.herokuapp.com/ deployed to Heroku
 
